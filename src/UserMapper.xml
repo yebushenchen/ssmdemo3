@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.dao.UserMapper">
+    <resultMap type="User" id="UserResult">
+        <id column="pid" property="id"/>
+        <association property="type" javaType="Type">
+            <id column="eid" property="id"/>
+        </association>
+    </resultMap>
+    <select id="selectByUser" resultMap="UserResult">
+        select p.*,e.*,p.id as pid,e.id as eid from user as p
+        left join type as e on p.id=e.id
+        where 1=1
+        <if test="username!=null and username!=''">
+            and p.username like concat('%',#{username},'%')
+        </if>
+        <if test="id!=null and  id>0">
+            and p.id=#{id}
+        </if>
+        <if test="page!=null">
+            limit #{page.pageNo} ,#{page.pageSize}
+        </if>
+    </select>
+    <select id="getCountByUser" resultType="int">
+        select COUNT(1) from user
+        where 1=1
+        <if test="username!=null and username!=''">
+            and username like concat('%',#{username},'%')
+        </if>
+    </select>
+    <insert id="addByUser">
+        insert into user(username,password,userType,phone,address)
+        values(#{username},#{password},#{userType},#{phone},#{address})
+    </insert>
+    <update id="updateByUser">
+        update user set
+        <trim suffixOverrides=",">
+            <if test="username!=null and username!=''">
+                username=#username},
+            </if>
+            <if test="password!=null and password!=''">
+                password=#{password},
+            </if>
+            <if test="userType!=null and userType>-1">
+                userType=#{userType},
+            </if>
+            <if test="phone!=null and phone!=''">
+                phone=#{phone},
+            </if>
+            <if test="address!=null and and address!=''">
+                address=#{address},
+            </if>
+        </trim>
+        where id=#{id}
+    </update>
+    <delete id="delByUser">
+        delete from user where id=#{id}
+    </delete>
+    <select id="selectByType" resultType="Type">
+        select * from type
+    </select>
+</mapper>
